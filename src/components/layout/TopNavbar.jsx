@@ -24,12 +24,24 @@ export default function TopNavbar() {
       transition={{ duration: 0.4 }}
       className="h-[50px] bg-noctis-panel border-b border-noctis-border flex items-center justify-between px-4 select-none z-50"
     >
-      {/* LEFT: Logo + Mode */}
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <div className="w-7 h-7 rounded bg-noctis-accent/10 border border-noctis-accent/30 flex items-center justify-center">
-            <span className="text-noctis-accent font-bold text-xs">N</span>
-          </div>
+          <svg viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-[26px] h-[26px] filter drop-shadow-[0_0_6px_rgba(168,85,247,0.55)]">
+            <defs>
+              <linearGradient id="noctis-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" stop-color="#a855f7" />
+                <stop offset="100%" stop-color="#3b82f6" />
+              </linearGradient>
+            </defs>
+            <path 
+              d="M 32 15 L 78 15 L 58 45 L 85 45 L 35 92 L 48 55 L 18 55 Z" 
+              fill="url(#noctis-logo-grad)" 
+              stroke="url(#noctis-logo-grad)"
+              strokeWidth="6"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          </svg>
           <div className="flex items-center gap-1.5">
             <span className="font-semibold text-noctis-text-bright text-sm tracking-wider">NOCTIS</span>
             <span className="text-[8px] font-bold font-mono bg-[#ff1e1e]/15 border border-[#ff1e1e]/30 text-[#ff1e1e] px-1 rounded select-none">V2</span>
