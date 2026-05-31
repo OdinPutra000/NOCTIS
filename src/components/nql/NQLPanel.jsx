@@ -4,21 +4,7 @@ import useStore from '../../store/investigationStore';
 import { parseNQL } from '../../engine/nqlParser';
 
 export default function NQLPanel() {
-  const { 
-    nqlOpen, 
-    toggleNQL, 
-    entities, 
-    relationships, 
-    events, 
-    nqlHistory, 
-    addNQLHistory, 
-    setSelectedEntity,
-    anomalies,
-    behaviorProfiles,
-    clusters,
-    operationalPatterns,
-    timelineIntelligence
-  } = useStore();
+  const { nqlOpen, toggleNQL, nqlHistory, addNQLHistory, entities, relationships, events, anomalies, behaviorProfiles, clusters, operationalPatterns, timelineIntelligence, setSelectedEntity, openInvestigationMode } = useStore();
   const [input, setInput] = useState('');
   const [results, setResults] = useState([]);
   const inputRef = useRef(null);
@@ -55,6 +41,13 @@ export default function NQLPanel() {
 
     if (result.type === 'trace' && result.data?.root) {
       setSelectedEntity(result.data.root);
+    }
+
+    if (result.type === 'investigation_command') {
+      setTimeout(() => {
+        toggleNQL(); // Close terminal
+        openInvestigationMode(); // Open investigation mode
+      }, 500);
     }
 
     setInput('');
@@ -319,6 +312,16 @@ export default function NQLPanel() {
           </div>
         );
       }
+      case 'investigation_command':
+        return (
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-2 text-[#0066ff]">
+              <div className="w-2 h-2 rounded-full bg-[#0066ff] animate-pulse" />
+              <span className="font-bold uppercase tracking-widest">Investigation Mode</span>
+            </div>
+            <p className="text-[#a3e635] animate-pulse">{r.text}</p>
+          </div>
+        );
       case 'prediction':
         return (
           <div>

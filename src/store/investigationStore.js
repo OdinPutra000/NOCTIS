@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { SAMPLE_CASE } from '../data/sampleCase';
 import { generateAIInsights } from '../engine/aiReasoning';
+import { generateCaseScorecard, generateRecommendedActions, generateExecutiveSummary, generateStepInsight } from '../engine/investigationEngine';
 
 const useStore = create((set, get) => ({
   // ===== CASE STATE =====
@@ -76,6 +77,16 @@ const useStore = create((set, get) => ({
   graphOverlay: 'none', // 'none' | 'behavior_heat' | 'confidence' | 'clusters'
   timelineMode: 'standard', // 'standard' | 'density' | 'heat'
 
+  // ===== INVESTIGATION MODE STATE =====
+  investigationModeOpen: false,
+  investigationPhase: 0,
+  investigationHistory: [],
+  investigationFindings: [],
+  investigationRecommendations: [],
+  investigationCaseSummary: null,
+  investigationScorecard: null,
+  investigationOfficerMessages: [],
+
 
   // ===== ACTIONS =====
   setActiveView: (view) => set({ activeView: view }),
@@ -90,6 +101,78 @@ const useStore = create((set, get) => ({
   // ===== V2 ACTIONS =====
   setGraphOverlay: (overlay) => set({ graphOverlay: overlay }),
   setTimelineMode: (mode) => set({ timelineMode: mode }),
+
+  // ===== INVESTIGATION MODE ACTIONS =====
+  toggleInvestigationMode: () => set((s) => ({ investigationModeOpen: !s.investigationModeOpen })),
+  openInvestigationMode: () => set({ investigationModeOpen: true }),
+  closeInvestigationMode: () => set({ investigationModeOpen: false }),
+  setInvestigationPhase: (phase) => {
+    const { entities, relationships, anomalies, behaviorProfiles, operationalPatterns, clusters, aiInsights, rawIntelligence } = get();
+    const storeSnapshot = { entities, relationships, anomalies, behaviorProfiles, operationalPatterns, clusters, aiInsights, rawIntelligence };
+    const insight = generateStepInsight(phase, storeSnapshot);
+    const officerMsg = {
+      id: `officer_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      phase,
+      stepTitle: insight.title,
+      content: insight.explanation,
+      type: 'phase_change',
+    };
+    set((s) => ({
+      investigationPhase: phase,
+      investigationOfficerMessages: [...s.investigationOfficerMessages, officerMsg],
+      investigationHistory: [...s.investigationHistory, {
+        step: phase,
+        action: `Navigated to Step ${phase + 1}: ${insight.title}`,
+        timestamp: new Date().toISOString(),
+        details: insight.title,
+      }],
+    }));
+  },
+  advanceInvestigationPhase: () => {
+    const { investigationPhase } = get();
+    if (investigationPhase < 7) {
+      get().setInvestigationPhase(investigationPhase + 1);
+    }
+  },
+  resetInvestigation: () => set({
+    investigationPhase: 0,
+    investigationHistory: [],
+    investigationFindings: [],
+    investigationRecommendations: [],
+    investigationCaseSummary: null,
+    investigationScorecard: null,
+    investigationOfficerMessages: [],
+  }),
+  addInvestigationFinding: (finding) => set((s) => ({
+    investigationFindings: [...s.investigationFindings, { ...finding, timestamp: new Date().toISOString() }],
+    investigationHistory: [...s.investigationHistory, {
+      step: s.investigationPhase,
+      action: `Finding discovered: ${finding.title || 'Unknown'}`,
+      timestamp: new Date().toISOString(),
+      details: finding.title,
+    }],
+  })),
+  addOfficerMessage: (message) => set((s) => ({
+    investigationOfficerMessages: [...s.investigationOfficerMessages, {
+      id: `officer_${Date.now()}`,
+      timestamp: new Date().toISOString(),
+      content: message,
+      type: 'insight',
+    }],
+  })),
+  generateInvestigationSummary: () => {
+    const { entities, relationships, anomalies, behaviorProfiles, operationalPatterns, clusters } = get();
+    const scorecard = generateCaseScorecard(entities, relationships, anomalies, behaviorProfiles, clusters);
+    const recommendations = generateRecommendedActions(entities, relationships, anomalies, operationalPatterns, clusters, behaviorProfiles);
+    const summary = generateExecutiveSummary(entities, relationships, anomalies, operationalPatterns, clusters, behaviorProfiles);
+    set({
+      investigationScorecard: scorecard,
+      investigationRecommendations: recommendations,
+      investigationCaseSummary: summary,
+    });
+    return { scorecard, recommendations, summary };
+  },
   selectCluster: (clusterId) => set({ selectedCluster: clusterId }),
 
 

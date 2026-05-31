@@ -1,15 +1,5 @@
-// ============================================================================
-// NOCTIS INTELLIGENCE INVESTIGATION PLATFORM - AI REASONING ENGINE (STUB)
-// COPYRIGHT (C) 2026 ODINPUTRA000. ALL RIGHTS RESERVED.
-// PROPRIETARY & CONFIDENTIAL. ENTERPRISE VERSION ONLY.
-// 
-// NOTICE: The advanced algorithmic logic, machine learning prompts, heuristic
-// equations, and query parsers contained in this module are classified and
-// reserved. This stub version is provided for open-source code architecture 
-// transparency and repository compilation purposes.
-// The fully featured, compiled execution bundle is served securely on 
-// the production hosted environment (GitHub Pages).
-// ============================================================================
+// ===== NOCTIS V2 AI INVESTIGATION REASONING ENGINE =====
+// Coordinates and processes V2 behavioral intelligence engines to generate analytical reports
 
 import { detectAnomalies } from './anomalyEngine';
 import { analyzeBehavior } from './behaviorEngine';
@@ -19,7 +9,7 @@ import { analyzeTimeline } from './timelineEngine';
 import { detectPatterns } from './patternEngine';
 
 /**
- * Executes a full behavioral intelligence analysis pass using sanitized, rule-based fallbacks.
+ * Executes a full behavioral intelligence analysis pass across all engines.
  * @param {Array} entities 
  * @param {Array} relationships 
  * @param {Array} events 
@@ -40,7 +30,7 @@ export function generateAIInsights(entities, relationships, events) {
     };
   }
 
-  // Run the core stubs
+  // 1. RUN CORE ENGINES
   const anomalies = detectAnomalies(entities, relationships, events);
   const behaviorProfiles = analyzeBehavior(entities, relationships, events, anomalies);
   const confidenceProfiles = calculateRelationshipConfidence(relationships, entities, events);
@@ -48,20 +38,21 @@ export function generateAIInsights(entities, relationships, events) {
   const timelineData = analyzeTimeline(events, entities);
   const patternData = detectPatterns(entities, relationships, events);
 
-  // Generate Summary Brief
+  // 2. GENERATE PREMIUM INTELLIGENCE BRIEF
   const criticalAnomCount = anomalies.filter(a => a.severity === 'CRITICAL' || a.severity === 'HIGH').length;
   const escalatingCount = Object.values(behaviorProfiles).filter(p => p.trend === 'ESCALATING').length;
-
-  let summary = `[Sanitized Enterprise Core] Operational analysis of ${entities.length} nodes and ${relationships.length} active links resolved ${anomalies.length} distinct anomalies, with ${criticalAnomCount} flagged at CRITICAL/HIGH severity. `;
+  
+  let summary = `Operational analysis of ${entities.length} nodes and ${relationships.length} active links resolved ${anomalies.length} distinct anomalies, with ${criticalAnomCount} flagged at CRITICAL/HIGH severity. `;
   summary += `Behavioral profiles list ${escalatingCount} endpoints exhibiting active risk escalation. `;
-
+  
   if (clusterData.clusters.length > 0) {
     const topCell = clusterData.clusters[0];
     summary += `Topology checks resolved ${clusterData.clusters.length} active communities. The highest threat cluster is ${topCell.name} (average threat risk: ${topCell.avgRisk}%, central hub: ${topCell.hubName}). `;
   }
-  summary += `Network threat vectors display ${patternData.length} distinct operational signatures.`;
 
-  // Generate Suspicious Explanations
+  summary += `Network threat vectors display ${patternData.length} distinct operational signatures, indicating a highly coordinated operational footprint.`;
+
+  // 3. GENERATE SUSPICIOUS EXPLANATIONS (Why entities are dangerous)
   const suspiciousExplanations = Object.values(behaviorProfiles)
     .sort((a, b) => b.behaviorScore - a.behaviorScore)
     .slice(0, 5)
@@ -80,7 +71,7 @@ export function generateAIInsights(entities, relationships, events) {
       };
     });
 
-  // Behavioral Observations
+  // 4. BEHAVIORAL OBSERVATIONS
   const behavioralObservations = [];
   Object.values(behaviorProfiles)
     .filter(p => p.behaviorScore >= 60)
@@ -102,7 +93,7 @@ export function generateAIInsights(entities, relationships, events) {
     behavioralObservations.push('No significant operational anomalies or behavioral deviations detected in current cycle.');
   }
 
-  // Relationship Reasoning
+  // 5. RELATIONSHIP REASONING (Why links are suspicious)
   const relationshipReasoning = relationships
     .filter(r => r.suspicious || r.weight >= 7)
     .map(r => {
@@ -123,7 +114,7 @@ export function generateAIInsights(entities, relationships, events) {
     })
     .sort((a, b) => b.weight - a.weight);
 
-  // Predictions
+  // 6. PREDICTIVE PREPARATION & INDICATORS
   const predictions = [];
   if (patternData.length > 0) {
     patternData.slice(0, 3).forEach(pat => {
@@ -137,7 +128,10 @@ export function generateAIInsights(entities, relationships, events) {
         desc = `High probability of operational asset delivery and command distribution from hub "${pat.name}" to peripheral nodes within 24-48 hours.`;
       } else if (pat.type === 'chain_flow') {
         title = 'Sequential Transit Transfer';
-        desc = `Active linear flow sequence suggests imminent operational payload or financial transfer.`;
+        desc = `Active linear flow sequence suggests imminent operational payload or financial transfer to endpoint "${entities.find(e => e.id === pat.involvedEntities[pat.involvedEntities.length-1])?.name}".`;
+      } else if (pat.type === 'infrastructure_reuse') {
+        title = 'Infrastructure Multi-Vector Attack';
+        desc = `Shared asset access indicators confirm threat actors will leverage joint IP/Domain endpoints to launch parallel campaigns.`;
       } else {
         title = 'Operational Escalation Wave';
         desc = `Synchronized timeline clustering patterns indicate threat actors are preparing for a targeted deployment surge.`;
@@ -153,6 +147,7 @@ export function generateAIInsights(entities, relationships, events) {
     });
   }
 
+  // Fallbacks if no pattern-based predictions
   if (predictions.length === 0) {
     predictions.push({
       id: 'pred_fallback_comms',
@@ -163,7 +158,7 @@ export function generateAIInsights(entities, relationships, events) {
     });
   }
 
-  // Structural Summary Metrics
+  // 7. STRUCTURAL SUMMARY METRICS
   const totalRisk = entities.reduce((s, e) => s + (e.risk || 0), 0);
   const avgRisk = Math.round(totalRisk / entities.length);
   const maxRisk = Math.max(...entities.map(e => e.risk || 0), 0);
@@ -203,11 +198,13 @@ export function generateAIInsights(entities, relationships, events) {
 }
 
 /**
- * Generates an intelligence brief for a single entity using pre-computed telemetry.
+ * Generates an intelligence brief for a single entity.
  * @param {Object} entity 
- * @param {Object} caseData 
- * @param {Object} precomputedInsights 
- * @returns {Array} Detailed entity behavioral brief
+ * @param {Array} entities 
+ * @param {Array} relationships 
+ * @param {Array} events 
+ * @param {Object} insights Full pre-computed V2 insights
+ * @returns {Object} Detailed entity behavioral brief
  */
 export function generateEntityInsights(entity, caseData, precomputedInsights = null) {
   if (!entity) return null;
@@ -240,6 +237,7 @@ export function generateEntityInsights(entity, caseData, precomputedInsights = n
     });
   });
 
+  // Check pattern involvements
   const patterns = insights.rawOperationalPatterns?.filter(p => p.involvedEntities && p.involvedEntities.includes(entity.id)) || [];
   patterns.forEach(pat => {
     explanations.push({

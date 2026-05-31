@@ -1,36 +1,24 @@
-// ============================================================================
-// NOCTIS INTELLIGENCE INVESTIGATION PLATFORM - NQL PARSER ENGINE (STUB)
-// COPYRIGHT (C) 2026 ODINPUTRA000. ALL RIGHTS RESERVED.
-// PROPRIETARY & CONFIDENTIAL. ENTERPRISE VERSION ONLY.
-// 
-// NOTICE: The advanced algorithmic logic, machine learning prompts, heuristic
-// equations, and query parsers contained in this module are classified and
-// reserved. This stub version is provided for open-source code architecture 
-// transparency and repository compilation purposes.
-// The fully featured, compiled execution bundle is served securely on 
-// the production hosted environment (GitHub Pages).
-// ============================================================================
+// ===== NOCTIS QUERY LANGUAGE (NQL) PARSER =====
 
-/**
- * Parses and executes NQL commands.
- * @param {string} command 
- * @param {Array} entities 
- * @param {Array} relationships 
- * @param {Array} events 
- * @param {Object} v2Context 
- * @returns {Object} Command execution result
- */
 export function parseNQL(command, entities, relationships, events, v2Context) {
   const tokens = command.trim().split(/\s+/);
   const cmd = tokens[0]?.toUpperCase();
 
   switch (cmd) {
+    case 'START':
+      if (tokens[1]?.toUpperCase() === 'INVESTIGATION') {
+        return { type: 'investigation_command', action: 'start', text: 'Initializing Guided Investigation Pipeline...' };
+      }
+      return { type: 'error', text: 'Unknown START command. Available: START investigation' };
     case 'TRACE':
       if (tokens[1]?.toUpperCase() === 'ESCALATION_CHAIN') {
         return handleTraceEscalationChain(tokens, entities, v2Context);
       }
       return handleTrace(tokens, entities, relationships);
     case 'SHOW':
+      if (tokens[1]?.toUpperCase() === 'FINDINGS') {
+        return { type: 'investigation_command', action: 'show_findings', text: 'Displaying investigation scorecard and recommendations.' };
+      }
       if (tokens[1]?.toUpperCase() === 'SUSPICIOUS_CLUSTERS' || tokens[1]?.toUpperCase() === 'CLUSTERS') {
         return handleShowClusters(v2Context);
       }
@@ -160,6 +148,9 @@ function handleScan(tokens, entities, relationships, events) {
     const suspRels = relationships.filter(r => r.suspicious);
     if (suspRels.length > 0) anomalies.push(`WARNING: ${suspRels.length} suspicious relationships detected`);
     
+    const ratio = relationships.length > 0 ? (suspRels.length / relationships.length * 100).toFixed(1) : 0;
+    anomalies.push(`INFO: Suspicious link ratio: ${ratio}%`);
+    
     return { type: 'scan', data: { title: 'Anomaly Scan Results', items: anomalies, count: anomalies.length } };
   }
   
@@ -177,12 +168,18 @@ function handleAnalyzeBehavior(tokens, entities, v2Context) {
   const profile = behaviorProfiles[entity.id];
 
   if (!profile) {
-    return { type: 'error', data: `No behavioral profile found for entity "${entity.name}".` };
+    return {
+      type: 'error',
+      data: `No behavioral profile found for entity "${entity.name}" (${entity.id}).`
+    };
   }
 
   return {
     type: 'behavior_profile',
-    data: { entity, profile }
+    data: {
+      entity,
+      profile
+    }
   };
 }
 
@@ -219,6 +216,8 @@ function handleTraceEscalationChain(tokens, entities, v2Context) {
 
   const timelineIntelligence = v2Context?.timelineIntelligence || {};
   const escalations = timelineIntelligence.escalations || [];
+
+  // Find escalations linked to this entity
   const entityEscalations = escalations.filter(esc => esc.entityId === entity.id);
 
   return {
@@ -236,12 +235,22 @@ function handleGenerate(tokens, entities, relationships, events) {
   const target = tokens.slice(1).join('_').toLowerCase();
   
   if (target === 'investigation_summary' || target === 'summary') {
+    const persons = entities.filter(e => e.type === 'person');
+    const highRisk = entities.filter(e => e.risk >= 70);
+    const suspRels = relationships.filter(r => r.suspicious);
+    
     const summary = [
       `=== INVESTIGATION SUMMARY ===`,
       `Total Entities: ${entities.length}`,
       `Total Relationships: ${relationships.length}`,
-      `High-Risk Entities: ${entities.filter(e => e.risk >= 70).length}`,
+      `Suspicious Links: ${suspRels.length}`,
+      `High-Risk Entities: ${highRisk.length}`,
+      `Persons of Interest: ${persons.length}`,
+      ``,
+      `Top Threats:`,
+      ...highRisk.slice(0, 5).map(e => `  → ${e.name} (${e.type}) — Risk: ${e.risk}`),
     ];
+    
     return { type: 'summary', data: summary.join('\n') };
   }
   
@@ -249,9 +258,15 @@ function handleGenerate(tokens, entities, relationships, events) {
 }
 
 function handlePredict(tokens, entities, relationships, events) {
+  const target = tokens[1]?.toLowerCase() || 'escalation';
+  const suspRels = relationships.filter(r => r.suspicious);
+  const highRisk = entities.filter(e => e.risk >= 70);
+  
   const predictions = [
-    { title: 'Communication Escalation', confidence: 75 },
-    { title: 'Infrastructure Reuse', confidence: 60 },
+    { title: 'Communication Escalation', confidence: Math.min(95, 50 + highRisk.length * 5 + suspRels.length * 2) },
+    { title: 'Infrastructure Reuse', confidence: Math.min(90, 40 + suspRels.length * 4) },
+    { title: 'New Entity Emergence', confidence: Math.min(88, 45 + highRisk.length * 6) },
+    { title: 'Operational Expansion', confidence: Math.min(85, 35 + entities.length * 2) },
   ];
 
   return {
@@ -259,7 +274,7 @@ function handlePredict(tokens, entities, relationships, events) {
     data: {
       title: 'Predictive Intelligence',
       predictions,
-      message: `Generated predictions based on current intelligence.`
+      message: `Generated ${predictions.length} predictions based on current intelligence.`
     }
   };
 }
@@ -275,20 +290,27 @@ function handleFind(tokens, entities) {
   return { type: 'list', data: { title: `Search: "${query}"`, items: results, message: `Found ${results.length} matching entities.` } };
 }
 
+function handleStart() {
+  return { type: 'info', data: 'Investigation Pipeline Initialized: Analyzing multi-node correlation vectors...' };
+}
+
 function getHelp() {
   return [
     'NOCTIS Query Language (NQL) Commands:',
     '',
+    '  START investigation            — Launch the guided investigation pipeline',
     '  TRACE <name> [depth <n>]       — Trace entity connections',
     '  TRACE escalation_chain <name>  — Show threat escalation history for an entity',
     '  SHOW suspicious_entities       — List high-risk entities',
+    '  SHOW findings                  — Display investigation scorecard',
     '  SHOW suspicious_clusters       — Show detected network coordination cells',
     '  SHOW all                       — List all entities',
     '  SCAN anomalies                 — Scan for behavioral & network anomalies',
-    '  DETECT operational_patterns     — Detect intelligence-grade patterns',
-    '  ANALYZE behavior <name>        — Analyze behavior profile & flags',
+    '  DETECT operational_patterns     — Detect intelligence-grade patterns (Hub/Spoke, Chain, etc.)',
+    '  ANALYZE behavior <name>        — Analyze 6-dimension behavior profile & flags',
     '  GENERATE summary               — Generate investigation summary',
-    '  FIND <query>                   — Search entities',
+    '  PREDICT escalation             — Predict future events',
+    '  FIND <query>                   — Search entities by name or type',
     '  HELP                           — Show this help',
   ].join('\n');
 }

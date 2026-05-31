@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import useStore from '../../store/investigationStore';
 
 export default function TopNavbar() {
-  const { activeCase, toggleNQL, anomalies = [] } = useStore();
+  const { activeCase, toggleNQL, anomalies = [], toggleInvestigationMode } = useStore();
   const [time, setTime] = useState(new Date());
 
   useEffect(() => {
@@ -82,6 +82,18 @@ export default function TopNavbar() {
 
       {/* RIGHT: Controls */}
       <div className="flex items-center gap-3">
+        {/* Investigation Mode Button */}
+        <button
+          onClick={toggleInvestigationMode}
+          className="flex items-center gap-2 text-xs font-mono text-white bg-[#0066ff] hover:bg-[#0055dd] transition-all px-4 py-1.5 rounded"
+          style={{ boxShadow: '0 0 12px rgba(0, 102, 255, 0.3)' }}
+        >
+          <span className="font-bold tracking-wider uppercase">Investigation Mode</span>
+          <span className="opacity-80">⌕</span>
+        </button>
+
+        <div className="h-4 w-px bg-noctis-border" />
+
         {/* NEX shortcut */}
         <button
           onClick={toggleNQL}

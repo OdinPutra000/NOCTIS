@@ -12,6 +12,7 @@ import MapView from './components/views/MapView';
 import TableView from './components/views/TableView';
 import FlowView from './components/views/FlowView';
 import GlobeView from './components/views/GlobeView';
+import InvestigationMode from './components/investigation/InvestigationMode';
 
 const VIEW_COMPONENTS = {
   graph: GraphView,
@@ -61,6 +62,9 @@ export default function App() {
 
       {/* NQL Overlay */}
       <NQLPanel />
+
+      {/* Investigation Mode Overlay */}
+      <InvestigationMode />
     </div>
   );
 }
