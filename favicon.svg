@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none">
+  <defs>
+    <linearGradient id="noctis-logo-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#a855f7" />
+      <stop offset="100%" stop-color="#3b82f6" />
+    </linearGradient>
+  </defs>
+  <path 
+    d="M 32 15 L 78 15 L 58 45 L 85 45 L 35 92 L 48 55 L 18 55 Z" 
+    fill="url(#noctis-logo-grad)" 
+    stroke="url(#noctis-logo-grad)"
+    stroke-width="6"
+    stroke-linejoin="round"
+    stroke-linecap="round"
+  />
+</svg>
